@@ -39,7 +39,7 @@ void Map_T<key_T, mapped_T>:: insert(pair<key_T, mapped_T> idata){
 		size++;
 		cout<<"data is: "<<this->root->data.first<<endl;
 	}else{
-		if (root->)
+		cout<<2<<endl;
 		this->root->insert(this->root, idata);
 		size++;
 	}
