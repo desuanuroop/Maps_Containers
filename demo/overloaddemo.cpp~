@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+class Demo{
+	public:
+		int l;
+	void operator+(Demo &ob2);
+	int operator+(Demo &ob2) const;
+};
+Demo::Demo(){
+	this->l = 12;
+}
+void Demo:: operator+(Demo &ob2){
+	cout<<"Addition of these two is: "<< this->l+ob2.l<<endl;
+}
+int Demo:: operator+(Demo &ob2) const{
+	cout<<"In const version:" << this->l+ob2.l<<endl;
+	return this->l+ob2.l;
+}
+int main(){
+	const Demo a,b;
+//	a.l = 10;
+//	b.l = 20;
+	a + b;
+//	const int sum = a + b;
+return 0;
+}

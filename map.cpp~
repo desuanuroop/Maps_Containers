@@ -1,14 +1,59 @@
 #include <iostream>
 #include <stdlib.h>
+#include <map>
+#include <vector>
 #include "Map.hpp"
 
 using namespace std;
-int main(){
-	Map_T<int, int>map;
-//	assert(map.size == 0);
-	map.insert(std::make_pair(10, 10));
-	map.insert(std::make_pair(20, 20));
-	cout<<"root is:"<<map.root->left->data.first<<endl;
-//	assert(map.root->right->data.first == 20);
+void original();
+int main(int argc, char *argv[]){
+	if (argc ==2){
+		original();
+	}
+	else{
+		Map_T<int, int> map;
+		map.insert(make_pair(10, 10));
+		map.insert(make_pair(20, 20));
+		map.insert(make_pair(30, 30));
+		map.insert(make_pair(40, 40));
+		map.insert(make_pair(50, 50));
+		auto it = map.end();
+		assert(it.first == 0);
+		it = map.begin();
+		assert(it.first == 10);
+		map.insert(make_pair(60, 60));
+/*		pair<int, int> a = make_pair(10, 10);
+		auto fin = map.find(a.first);
+		assert(fin.first == 10);
+		assert(map.size() == 6);
+		assert(!map.empty());
+		auto it = map.begin();
+		Map_T<int, int> map2;
+		map2 = map;
+		cout<<"Begin is: "<<map.root<<" "<<it.second<<endl;
+		Map_T<int, int> map2(map);
+		cout<<"Begin is: "<< map2.root->left->data.first<<endl;
+		assert(map.begin().first == map2.begin().first);*/
+	}
 return 0;
+}
+
+void original(){
+	std::map<int, int> ma;
+	ma.insert(make_pair(10, 10));
+	ma.insert(make_pair(20, 20));
+	ma.insert(make_pair(30, 30));
+	ma.insert(make_pair(40, 40));
+	ma.insert(make_pair(50, 50));
+	ma.insert(make_pair(60, 60));
+
+	std::map<int, int>ma2(ma);
+	for (std::map<int,int>::iterator it=ma2.begin(); it!=ma2.end(); ++it)
+		std::cout << it->first << " => " << it->second << '\n';
+	ma.insert(make_pair(100, 100));
+//	ma2.inset()
+	cout<<"Check "<<endl;
+        for (std::map<int,int>::iterator it=ma2.begin(); it!=ma2.end(); ++it)
+                std::cout << it->first << " => " << it->second << '\n';
+
 }

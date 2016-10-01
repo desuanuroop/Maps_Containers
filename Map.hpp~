@@ -1,7 +1,8 @@
+
 #include <iostream>
 #include <string>
 #include <assert.h>
-
+#include <typeinfo>
 using namespace std;
 template<class key_T, class mapped_T>
 class treeNode {
@@ -9,18 +10,122 @@ class treeNode {
 		treeNode *left;
 		pair<key_T, mapped_T> data;
 		treeNode *right;
+		treeNode *parent;
+		int heigh;
+		//Member functions
+		treeNode();
 		treeNode<key_T, mapped_T>* insert(treeNode<key_T, mapped_T> *, pair<key_T, mapped_T>);
+		int height(treeNode<key_T, mapped_T> *);
 };
 template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>::treeNode() {
+	this->left = NULL;
+	this->right = NULL;
+	this->parent = NULL;
+}
+template<class key_T, class mapped_T>
+int treeNode<key_T, mapped_T>::height(treeNode<key_T, mapped_T> *node){
+	return node==NULL? -1 : node->heigh;
+}
+
+template<class key_T, class mapped_T>
 treeNode<key_T, mapped_T>* treeNode<key_T, mapped_T>::insert(treeNode<key_T, mapped_T> *root, pair<key_T, mapped_T> idata){
-	if (root != 0){
-		if(root->data.first > idata.first) //Right side of tree
-			root = root->insert(root->right, idata);
-		else
-			root = root->insert(root->left, idata);
+	if (root != NULL){
+		if(root->data.first < idata.first){ //Right side of tree
+			root->right = root->insert(root->right, idata);
+			root->right->parent = root;
+			if(height(root->right) - height(root->left) == 2){
+				if(idata.first > root->right->data.first)
+					root = rotateWithRightChild(root);
+				else
+					root = doubleWithRightChild(root);
+			}
+		}
+		else{ //Left side of tree
+			root->left = root->insert(root->left, idata);
+			root->left->parent = root;
+			if(height(root->left) - height(root->right) == 2){
+				if(idata.first < root->left->data.first)
+					root = rotateWithLeftChild(root);
+				else
+					root = doubleWithLeftChild(root);
+			}
+		}
 	}else {
 		root = new treeNode<key_T, mapped_T>();
 		root->data = idata;
+	}
+	root->heigh = max(height(root->left), height(root->right)) +1;
+	return root;
+}
+template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>* rotateWithLeftChild(treeNode<key_T, mapped_T> *pa){
+//	cout<<"In rotation 1: "<< pa->data.first<<endl;
+//	Change parent
+	pa->left->parent = pa->parent;
+	pa->parent = pa->left;
+//	Changed
+	treeNode<key_T, mapped_T> *tempL = pa->left;
+	pa->left = tempL->right;
+	if (tempL->right != 0){
+		tempL->right->parent = pa;
+	}
+	tempL->right = pa;
+	pa->heigh = max(pa->height(pa->left), pa->height(pa->right)) +1 ;
+	tempL->heigh = max(tempL->height(tempL->left), pa->heigh) +1;
+	return tempL;
+}
+template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>* rotateWithRightChild(treeNode<key_T, mapped_T> *pa){
+//	cout<<"In rotation 2: "<< pa->data.first<<endl;
+//	Change parent
+	pa->right->parent = pa->parent;
+	pa->parent = pa->right;
+//	Changed
+	treeNode<key_T, mapped_T> *tempL = pa->right;
+	pa->right = tempL->left;
+	if(tempL->left != 0){
+		tempL->left->parent = pa;
+	}
+	tempL->left = pa;
+	pa->heigh = max(pa->height(pa->left), pa->height(pa->right)) +1;
+	tempL->heigh = max(tempL->height(tempL->right), pa->heigh) +1;
+	return tempL;
+}
+template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>* doubleWithLeftChild(treeNode<key_T, mapped_T> *parent){
+//	cout<<"In double with 1"<<endl;
+	parent->left = rotateWithRightChild(parent->left);
+	return rotateWithLeftChild(parent);
+}
+
+template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>* doubleWithRightChild(treeNode<key_T, mapped_T> *parent){
+//	cout<<"In double with 2"<<endl;
+	parent->right = rotateWithLeftChild(parent->right);
+	return rotateWithRightChild(parent);
+}
+
+//Iterator Class
+template<class key_T, class mapped_T>
+class Iterator{
+	public:
+		key_T first;
+		mapped_T second;
+		treeNode<key_T, mapped_T> *node;
+		Iterator(treeNode<key_T, mapped_T> *);
+};
+
+template<class key_T, class mapped_T>
+Iterator<key_T, mapped_T>::Iterator(treeNode<key_T, mapped_T> *Node){
+	if(Node != NULL){
+		this->node = Node;
+		this->first = Node->data.first;
+		this->second = Node->data.second;
+	}else{
+		this->node = Node;
+		this->first = 0;
+		this->second = 0;
 	}
 }
 
@@ -28,19 +133,133 @@ template<class key_T, class mapped_T>
 class Map_T{
 	public:
 		treeNode<key_T, mapped_T> *root;
-		int size;
+		int count;
 		void insert(pair<key_T, mapped_T>);
+		size_t size();
+		bool empty(){
+			return this->count == 0 ? 1:0;
+		}
+		Map_T& operator=(const Map_T &);
+		//constructors and destructors.
+                Map_T();
+		Map_T(Map_T<key_T, mapped_T> &);
+		void deleteNode(treeNode<key_T, mapped_T> *);
+		~Map_T();
+		//Iterator
+		Iterator<key_T, mapped_T> begin(); //Points to first elment in map
+		Iterator<key_T, mapped_T> end();
+		Iterator<key_T, mapped_T> rbegin();
+		Iterator<key_T, mapped_T> rend();
+		Iterator<key_T, mapped_T> find(const key_T &);
+
+		treeNode<key_T, mapped_T>* InsertTraversal(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T>*);
 };
+
+template<class key_T, class mapped_T>
+Map_T<key_T, mapped_T>::Map_T(){
+//	cout<<"In constructor"<<endl;
+	this->count = 0;
+	this->root = NULL;
+}
+//copy constructor
+template<class key_T, class mapped_T>
+Map_T<key_T, mapped_T>::Map_T(Map_T<key_T, mapped_T> &original){
+	this->count = 0;
+	this->root = NULL;
+	this->root = this->InsertTraversal(original.root, this->root);
+}
+
+template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>* Map_T<key_T, mapped_T>::InsertTraversal(treeNode<key_T, mapped_T> *original, treeNode<key_T, mapped_T> *ro){
+	if(original == NULL)
+		return NULL;
+	InsertTraversal(original->left, this->root);
+	this->root = this->root->insert(this->root, original->data);
+	InsertTraversal(original->right, this->root);
+return this->root;
+}
+
+template<class key_T, class mapped_T>
+Map_T<key_T, mapped_T>& Map_T<key_T, mapped_T>:: operator=(const Map_T<key_T, mapped_T> &rhs){
+	cout<<"In = with rhs as:"<< rhs.root->data.first<<endl;
+	this->root = this->InsertTraversal(rhs.root, this->root);
+}
 template<class key_T, class mapped_T>
 void Map_T<key_T, mapped_T>:: insert(pair<key_T, mapped_T> idata){
-	if (root == 0){
-		this->root = new treeNode<key_T, mapped_T>();
-		this->root->data = idata;
-		size++;
-		cout<<"data is: "<<this->root->data.first<<endl;
-	}else{
-		cout<<2<<endl;
-		this->root->insert(this->root, idata);
-		size++;
+	this->root = this->root->insert(this->root, idata);
+	this->root->heigh = max(this->root->height(this->root->left), this->root->height(this->root->right)) +1;
+	this->count++;
+}
+
+template<class key_T, class mapped_T>
+Iterator<key_T, mapped_T> Map_T<key_T, mapped_T>::begin(){
+//	cout<<"In Begin"<<endl;
+	treeNode<key_T, mapped_T> *begin = root;
+	while(begin->left != NULL)
+		begin = begin->left;
+return Iterator<key_T, mapped_T>(begin);
+}
+
+template<class key_T, class mapped_T>
+Iterator<key_T, mapped_T> Map_T<key_T, mapped_T>::end(){
+	treeNode<key_T, mapped_T> *end = root;
+	while(end != NULL)
+		end = end->right;
+return Iterator<key_T, mapped_T>(end);
+}
+template<class key_T, class mapped_T>
+Iterator<key_T, mapped_T> Map_T<key_T, mapped_T>::rbegin(){
+	treeNode<key_T, mapped_T> *begin = root;
+	while(begin->right != NULL)
+		begin = begin->right;
+return Iterator<key_T, mapped_T>(begin);
+}
+template<class key_T, class mapped_T>
+Iterator<key_T, mapped_T> Map_T<key_T, mapped_T>:: rend(){
+	treeNode<key_T, mapped_T> *begin = root;
+	while(begin->left != NULL)
+		begin = begin->left;
+return Iterator<key_T, mapped_T>(begin);
+}	
+
+template<class key_T, class mapped_T>
+Iterator<key_T, mapped_T> Map_T<key_T, mapped_T>::find(const key_T &tofind){
+	treeNode<key_T, mapped_T> *current = this->root;
+	int flag =1;
+	while(current){
+		if(current->data.first == tofind) {
+			flag = 0;
+			break;
+		}
+		else if(current->data.first > tofind)
+			current = current->left;
+		else
+			current = current->right;
 	}
+	if(flag)
+		return this->end();
+//		cout<<"Element not found"<<endl;
+	else
+		return Iterator<key_T, mapped_T>(current);
+}
+template<class key_T, class mapped_T>
+size_t Map_T<key_T, mapped_T>::size(){
+	return this->count;
+}
+
+template<class key_T, class mapped_T>
+void Map_T<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
+	if(node != NULL){
+		deleteNode(node->left);
+		deleteNode(node->right);
+		node->left = NULL;
+		node->right = NULL;
+		free(node);
+	}
+}
+
+template<class key_T, class mapped_T>
+Map_T<key_T, mapped_T>::~Map_T(){
+	if(this->root)
+		deleteNode(this->root);
 }

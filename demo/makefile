@@ -1,3 +1,3 @@
 all:
-	g++ tempdemo.cpp
+	g++ overloaddemo.cpp
 	./a.out
