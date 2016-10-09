@@ -2,13 +2,37 @@
 #include <stdlib.h>
 #include <map>
 #include <vector>
+#include <stdio.h>
 #include "Map.hpp"
 
 using namespace std;
 void original();
+
+/*
+ * Person class.
+ */
+
+struct Person {
+    friend bool operator<(const Person &p1, const Person &p2) {
+        return p1.name < p2.name;
+    }
+    friend bool operator==(const Person &p1, const Person &p2) {
+        return p1.name == p2.name;
+    }
+    Person(const char *n) : name(n) {}
+    void print() const {
+        printf("Name: %s\n", name.c_str());
+    }
+    const std::string name;
+    Person &operator=(const Person &) = delete;
+};
+
 int main(int argc, char *argv[]){
-	if (argc ==2){
-		original();
+	if (argc ==2 ){
+		Person p1("Jane");
+		Map_T<const Person, int > map;
+		map.insert(make_pair(p1, 1));
+//		assert(map.root->data.second == 1);
 	}
 	else{
 		Map_T<int, int> map;
@@ -18,8 +42,20 @@ int main(int argc, char *argv[]){
 		map.insert(make_pair(40, 40));
 		map.insert(make_pair(50, 50));
 		auto it = map.end();
+		auto i(it);
+		assert(i.first == it.first);
 		assert(it.first == 0);
 		it = map.begin();
+		assert(it.first == 10);
+		++it;
+		--it;
+		it++;
+		it--;
+		const auto c = map.begin();
+		auto p = *c;
+		p.second = 100;
+		assert(p.first == it.first);
+		assert(it.second == 10);
 		assert(it.first == 10);
 		it = map.rbegin();
 		assert(it.first == 50);

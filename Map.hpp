@@ -15,7 +15,7 @@ class treeNode {
 		int heigh, num;
 		//Member functions
 		treeNode();
-		treeNode<key_T, mapped_T>* insert(treeNode<key_T, mapped_T> *, pair<key_T, mapped_T>, int);
+		treeNode<key_T, mapped_T>* insert(treeNode<key_T, mapped_T> *, pair<key_T, mapped_T>);
 		int height(treeNode<key_T, mapped_T> *);
 };
 template<class key_T, class mapped_T>
@@ -30,20 +30,20 @@ int treeNode<key_T, mapped_T>::height(treeNode<key_T, mapped_T> *node){
 }
 
 template<class key_T, class mapped_T>
-treeNode<key_T, mapped_T>* treeNode<key_T, mapped_T>::insert(treeNode<key_T, mapped_T> *root, pair<key_T, mapped_T> idata, int count){
+treeNode<key_T, mapped_T>* treeNode<key_T, mapped_T>::insert(treeNode<key_T, mapped_T> *root, pair<key_T, mapped_T> idata){
 	if (root != NULL){
 		if(root->data.first < idata.first){ //Right side of tree
-			root->right = root->insert(root->right, idata, count);
+			root->right = root->insert(root->right, idata);
 			root->right->parent = root;
 			if(height(root->right) - height(root->left) == 2){
-				if(idata.first > root->right->data.first)
-					root = rotateWithRightChild(root);
-				else
+				if(idata.first < root->right->data.first)
 					root = doubleWithRightChild(root);
+				else
+					root = rotateWithRightChild(root);
 			}
 		}
 		else{ //Left side of tree
-			root->left = root->insert(root->left, idata, count);
+			root->left = root->insert(root->left, idata);
 			root->left->parent = root;
 			if(height(root->left) - height(root->right) == 2){
 				if(idata.first < root->left->data.first)
@@ -55,7 +55,6 @@ treeNode<key_T, mapped_T>* treeNode<key_T, mapped_T>::insert(treeNode<key_T, map
 	}else {
 		root = new treeNode<key_T, mapped_T>();
 		root->data = idata;
-		root->num = count;
 	}
 	root->heigh = max(height(root->left), height(root->right)) +1;
 	return root;
@@ -112,18 +111,28 @@ template<class key_T, class mapped_T>
 class Map_T{
         //Iterator Class
 	public:
-	class Iterator{
+	typedef pair<key_T, mapped_T> valueType;
+	class Iterator {
 		public:
 			key_T first;
 			mapped_T second;
 			treeNode<key_T, mapped_T> *node;
-			Iterator(treeNode<key_T, mapped_T> *);
+                        treeNode<key_T, mapped_T> *root;
+			const treeNode<key_T, mapped_T> *parent;
+			//Methods
+			Iterator(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T> *);//constructor
+			Iterator& operator++();
+			Iterator operator++(int);//postincrement
+			Iterator& operator--();
+			Iterator operator--(int);//postdecrement
+			valueType& operator*() const;
+			void assign(treeNode<key_T, mapped_T> *);
 	};
 	//Map_T class memebers.
 	treeNode<key_T, mapped_T> *root;
 	int count;
 
-	void insert(pair<key_T, mapped_T>);
+	void insert(const pair<key_T, mapped_T>);
 	treeNode<key_T, mapped_T>* InsertTraversal(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T>*);
 
 	//Constructor and Assignment Operators
@@ -154,7 +163,8 @@ class Map_T{
 
 //InnerClass Iterators
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::Iterator::Iterator(treeNode<key_T, mapped_T> *Node){
+Map_T<key_T, mapped_T>::Iterator::Iterator(treeNode<key_T, mapped_T> *Node, treeNode<key_T, mapped_T> *root){
+        this->root = root;
 	if(Node != NULL){
 		this->node = Node;
 		this->first = Node->data.first;
@@ -165,7 +175,62 @@ Map_T<key_T, mapped_T>::Iterator::Iterator(treeNode<key_T, mapped_T> *Node){
 		this->second = 0;
 	}
 }
-
+//Helper to find required indexec node
+template<class key_T, class mapped_T>
+treeNode<key_T, mapped_T>* findNum(treeNode<key_T, mapped_T> *root, int index){
+	treeNode<key_T, mapped_T> *current = root;
+        while(current){
+                if(current->num == index)
+                        break;
+                else if(current->num > index)
+                        current = current->left;
+                else
+                        current = current->right;
+        }
+	return current;
+}
+template<class key_T, class mapped_T>
+void Map_T<key_T, mapped_T>::Iterator::assign(treeNode<key_T, mapped_T> *current){
+	this->node = current;
+        if(current){
+                this->first = current->data.first;
+                this->second = current->data.second;
+        }
+        else {
+                this->first = 0;
+                this->second = 0;
+        }
+}
+template<class key_T, class mapped_T>
+typename Map_T<key_T, mapped_T>::Iterator& Map_T<key_T, mapped_T>::Iterator::operator++(){//preincrement
+	treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
+	assign(current);
+	return *this;
+}
+template<class key_T, class mapped_T>
+typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::Iterator::operator++(int x){ //postincrement
+	Map_T<key_T, mapped_T>::Iterator havetoReturn(this->node, this->root);
+	treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
+	assign(current);
+	return havetoReturn;
+}
+template<class key_T, class mapped_T>
+typename Map_T<key_T, mapped_T>::Iterator& Map_T<key_T, mapped_T>::Iterator::operator--(){//predecrement
+	treeNode<key_T, mapped_T> *current = findNum(root, node->num-1);
+	assign(current);
+	return *this;
+}
+template<class key_T, class mapped_T>
+typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::Iterator::operator--(int x){ //postincrement
+        Map_T<key_T, mapped_T>::Iterator havetoReturn(this->node, this->root);
+        treeNode<key_T, mapped_T> *current = findNum(root, node->num-1);
+        assign(current);
+        return havetoReturn;
+}
+template<class key_T, class mapped_T>
+pair<key_T, mapped_T>& Map_T<key_T, mapped_T>::Iterator::operator*() const{
+	return node->data;
+}
 template<class key_T, class mapped_T>
 Map_T<key_T, mapped_T>::Map_T(){
 //	cout<<"In constructor"<<endl;
@@ -185,8 +250,7 @@ treeNode<key_T, mapped_T>* Map_T<key_T, mapped_T>::InsertTraversal(treeNode<key_
 	if(original == NULL)
 		return NULL;
 	InsertTraversal(original->left, this->root);
-	this->root = this->root->insert(this->root, original->data, ++this->count);
-//	this->count++;
+	this->root = this->root->insert(this->root, original->data);
 	InsertTraversal(original->right, this->root);
 return this->root;
 }
@@ -195,19 +259,31 @@ template<class key_T, class mapped_T>
 Map_T<key_T, mapped_T>& Map_T<key_T, mapped_T>:: operator=(const Map_T<key_T, mapped_T> &rhs){
 	this->root = this->InsertTraversal(rhs.root, this->root);
 }
-template<class key_T, class mapped_T>
-void Map_T<key_T, mapped_T>:: insert(pair<key_T, mapped_T> idata){
-	this->root = this->root->insert(this->root, idata, ++this->count);
-	this->root->heigh = max(this->root->height(this->root->left), this->root->height(this->root->right)) +1;
-}
 
+template<class key_T, class mapped_T>
+void Map_T<key_T, mapped_T>:: insert(const pair<key_T, mapped_T> idata){
+	this->root = this->root->insert(this->root, idata);
+	this->count++;
+	this->root->heigh = max(this->root->height(this->root->left), this->root->height(this->root->right)) +1;
+	indexing(this->root, 0);
+}
+//Helper
+template<class key_T, class mapped_T>
+int indexing(treeNode<key_T, mapped_T> *root, int n){
+	if(root == NULL)
+		return n;
+	n = indexing(root->left, n);
+	root->num = ++n;
+	n = indexing(root->right, n);
+	return n;
+}
 template<typename key_T, typename mapped_T>
 typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::begin(){
 //	cout<<"In Begin"<<endl;
 	treeNode<key_T, mapped_T> *begin = root;
 	while(begin->left != NULL)
 		begin = begin->left;
-return Iterator(begin);
+return Iterator(begin, this->root);
 }
 
 template<class key_T, class mapped_T>
@@ -215,21 +291,21 @@ typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::end(){
 	treeNode<key_T, mapped_T> *end = root;
 	while(end != NULL)
 		end = end->right;
-return Iterator(end);
+return Iterator(end, this->root);
 }
 template<class key_T, class mapped_T>
 typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::rbegin(){
 	treeNode<key_T, mapped_T> *begin = root;
 	while(begin->right != NULL)
 		begin = begin->right;
-return Iterator(begin);
+return Iterator(begin, this->root);
 }
 template<class key_T, class mapped_T>
 typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>:: rend(){
 	treeNode<key_T, mapped_T> *end = root;
 	while(end != NULL)
 		end = end->left;
-return Iterator(end);
+return Iterator(end, this->root);
 }
 
 //Element Access
@@ -318,7 +394,7 @@ check:
 		else
 			current = current->left;
 	}
-	this->root = this->root->insert(this->root, make_pair(index, NULL), ++this->count);
+	this->root = this->root->insert(this->root, make_pair(index, NULL));
 	goto check;
 }
 
