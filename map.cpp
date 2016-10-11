@@ -1,3 +1,4 @@
+//ALSO check for num in nodes, we are starting from 0.
 #include <iostream>
 #include <stdlib.h>
 #include <map>
@@ -28,19 +29,26 @@ struct Person {
 };
 
 int main(int argc, char *argv[]){
-	if (argc ==2 ){
+/*	if (argc ==2 ){
 		Person p1("Jane");
+		Person p2("Lisbon");
+		Person p3("Cho");
 		Map_T<const Person, int > map;
+		map.insert(make_pair(p3, 3));
+		assert(map.root->data->second == 3);
+		map.insert(make_pair(p2, 2));
 		map.insert(make_pair(p1, 1));
-//		assert(map.root->data.second == 1);
+		cout<<"fdfd"<<endl;
 	}
-	else{
+	else{*/
 		Map_T<int, int> map;
-		map.insert(make_pair(10, 10));
+		auto b = map.insert(make_pair(10, 10));
 		map.insert(make_pair(20, 20));
 		map.insert(make_pair(30, 30));
 		map.insert(make_pair(40, 40));
 		map.insert(make_pair(50, 50));
+		b = map.insert(make_pair(50, 50));
+		cout<<b.second<<endl;
 		auto it = map.end();
 		auto i(it);
 		assert(i.first == it.first);
@@ -63,31 +71,31 @@ int main(int argc, char *argv[]){
 		assert(it.first == 0);
 		map.insert(make_pair(60, 60));
 		bool thrown = false;
-/*		try {
+		try {
 			map.at(100) = 100;
-			assert(map.root->left->left->data.second == 100);
+			assert(map.root->left->left->data->second == 100);
 		}catch(std::out_of_range e){
 			thrown = true;
-		}*/
+		}
 		map[1] = 100;
 		assert(!map.empty());
-/*		assert(map.root->left->left->data.second == 100);
+		assert(map.root->left->left->left->data->second == 100);
 		cout<<"Out of try"<<endl;
 		assert(thrown);
 		pair<int, int> a = make_pair(10, 10);
 		auto fin = map.find(10);
 		assert(fin.first == 10);
-		assert(map.size() == 6);
+		assert(map.size() == 7);
 		assert(!map.empty());
 		it = map.begin();
 		Map_T<int, int> map2;
 		map2 = map;
 		assert(map2.size() == map.size());
-		cout<<"Begin is: "<<map.root<<" "<<it.second<<endl;
-		Map_T<int, int> map2(map);
-		cout<<"Begin is: "<< map2.root->left->data.first<<endl;
-		assert(map.begin().first == map2.begin().first);*/
-	}
+		cout<<"Begin is: "<<it.second<<endl;
+//		Map_T<int, int> map3(map);
+//		cout<<"Begin is: "<< map3.root->left->data->first<<endl;
+//		assert(map.begin().first == map3.begin().first);
+//	}
 return 0;
 }
 

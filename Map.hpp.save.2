@@ -132,23 +132,6 @@ class Map_T{
 			valueType& operator*() const;
 			void assign(treeNode<key_T, mapped_T> *);
 	};
-	class ConstIterator{
-		public:
-			key_T first;
-			mapped_T second;
-			const treeNode<key_T, mapped_T> *node;
-                        treeNode<key_T, mapped_T> *root;
-			treeNode<key_T, mapped_T> *parent;
-			//Methods
-			ConstIterator(const Iterator &, treeNode<key_T, mapped_T> *);
-			ConstIterator(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T> *);//constructor
-			ConstIterator& operator++();
-			ConstIterator operator++(int);//postincrement
-			ConstIterator& operator--();
-			ConstIterator operator--(int);//postdecrement
-			const valueType& operator*() const;
-			void assign(treeNode<key_T, mapped_T> *);
-	};			
 	//Map_T class memebers.
 	treeNode<key_T, mapped_T> *root;
 	int count;
@@ -161,6 +144,7 @@ class Map_T{
 	Map_T& operator=(const Map_T &);
 	Map_T(Map_T<key_T, mapped_T> &);
 	void erase(const key_T &);
+	void erase(Iterator );
 	void deleteNode(treeNode<key_T, mapped_T> *);
 	~Map_T();
 
@@ -367,6 +351,7 @@ size_t Map_T<key_T, mapped_T>::size() const{
 	return this->count;
 }
 
+
 template<class key_T, class mapped_T>
 void Map_T<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
 	if(node != NULL){
@@ -453,17 +438,4 @@ typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::Iterator::oper
 template<class key_T, class mapped_T>
 pair<key_T, mapped_T>& Map_T<key_T, mapped_T>::Iterator::operator*() const{
 	return *node->data;
-}
-
-//ConstIterator Class
-template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::ConstIterator::ConstIterator(const Map_T<key_T, mapped_T>::Iterator &it, treeNode<key_T, mapped_T> *Node): node(Node){
-	this->root = root;
-	if(Node != NULL){
-		this->first = Node->data->first; 
-		this->second = Node->data->second;
-	}else{
-		this->first = 0;
-		this->second = 0;
-	}
 }

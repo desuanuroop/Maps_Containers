@@ -6,7 +6,6 @@ void p(const key_T &k){
 }
 
 int main(){
-	p(4);
-	p(12.2);
-return 0;
+	pair <int, int> a = make_pair<1,1>;
+return 1;
 }
