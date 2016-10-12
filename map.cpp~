@@ -42,11 +42,13 @@ int main(int argc, char *argv[]){
 	}
 	else{*/
 		Map_T<int, int> map;
-		map.insert(make_pair(10, 10));
+		auto b = map.insert(make_pair(10, 10));
 		map.insert(make_pair(20, 20));
 		map.insert(make_pair(30, 30));
 		map.insert(make_pair(40, 40));
 		map.insert(make_pair(50, 50));
+		b = map.insert(make_pair(50, 50));
+		cout<<b.second<<endl;
 		auto it = map.end();
 		auto i(it);
 		assert(i.first == it.first);
@@ -83,17 +85,25 @@ int main(int argc, char *argv[]){
 		pair<int, int> a = make_pair(10, 10);
 		auto fin = map.find(10);
 		assert(fin.first == 10);
-		assert(map.size() == 6);
+		assert(map.size() == 7);
 		assert(!map.empty());
 		it = map.begin();
-		Map_T<int, int> map2;
-		map2 = map;
-		//assert(map2.size() == map.size()); FIX this
+		it.node->data->first = 123;
+		assert(it.node->data->first == 123);
+		const Map_T<int, int> map2(map);
+		auto cit = map2.begin();
+		assert(cit.first == 123);
+		++cit;
+		assert(cit.first == 10);
+		cout<<"Node is: "<<cit.node->data->first<<endl;
+		cit.node->data->first = 90;
+		cout<<"Node is: "<<cit.node->data->first<<endl;
+		assert(map2.size() == map.size());
 		cout<<"Begin is: "<<it.second<<endl;
 //		Map_T<int, int> map3(map);
 //		cout<<"Begin is: "<< map3.root->left->data->first<<endl;
 //		assert(map.begin().first == map3.begin().first);
-/	}
+//	}
 return 0;
 }
 
