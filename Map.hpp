@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <stdexcept>
 
+namespace cs540 {
 using namespace std;
 template<class key_T, class mapped_T>
 class treeNode {
@@ -164,7 +165,9 @@ class Map_T{
 	Map_T();
 	Map_T& operator=(const Map_T &);
 	Map_T(const Map_T<key_T, mapped_T> &);
+	Map_T(std::initializer_list<std::pair<const key_T, mapped_T>>);
 	void erase(const key_T &);
+	void clear();
 	void deleteNode(treeNode<key_T, mapped_T> *);
 	~Map_T();
 
@@ -206,7 +209,13 @@ Map_T<key_T, mapped_T>::Map_T(const Map_T<key_T, mapped_T> &original){
 	this->root = this->InsertTraversal(original.root, this->root);
 	indexing(this->root, 0);
 }
-
+template<typename key_T, typename mapped_T>
+Map_T<key_T, mapped_T>::Map_T(std::initializer_list<std::pair<const key_T, mapped_T>> lis){
+	typename std::initializer_list<std::pair<const key_T, mapped_T>>::iterator it;
+	for (it=lis.begin(); it!=lis.end(); ++it){
+		this->insert(*it);
+	}
+}
 template<class key_T, class mapped_T>
 treeNode<key_T, mapped_T>* Map_T<key_T, mapped_T>::InsertTraversal(treeNode<key_T, mapped_T> *original, treeNode<key_T, mapped_T> *ro){
 	if(original == NULL)
@@ -395,20 +404,76 @@ template<class key_T, class mapped_T>
 size_t Map_T<key_T, mapped_T>::size() const{
 	return this->count;
 }
-
+template<typename key_T, typename mapped_T>
+void Map_T<key_T, mapped_T>::clear(){
+	if(this->root)
+		deleteNode(this->root);
+	this->root=NULL;
+}
+template<typename key_T, typename mapped_T>
+void Map_T<key_T, mapped_T>::erase(const key_T& delKeyNode){
+	treeNode<key_T, mapped_T> *current = this->root;
+	while(current){
+		if(current->data->first == delKeyNode){
+			delNode(current);
+			indexing(this->root, 0);
+			return;
+		}
+		else if(current->data->first < delKeyNode)
+			current = current->right;
+		else
+			current = current->left;
+	}
+	throw std::out_of_range("Not in map");
+}
+template<typename key_T, typename mapped_T>
+void delNode(treeNode<key_T, mapped_T> *node){
+	if(!node->left && !node->right){
+		if(node->parent->data->first < node->data->first)
+			node->parent->right = NULL;
+		else
+			node->parent->left = NULL;
+		delete node;
+	}else if(!node->left){
+		if(node->parent->data->first < node->data->first)
+			node->parent->right = node->right;
+		else
+			node->parent->left = node->right;
+		delete node;
+	}else if(!node->right){
+		if(node->parent->data->first < node->data->first)
+			node->parent->right = node->left;
+		else
+			node->parent->left = node->left;
+		delete node;
+	}
+	else{
+		treeNode<key_T, mapped_T> *current = node->right;
+		while(current->left)
+			current = current->left;
+		node->data = current->data;
+		if(current->parent->data->first < current->data->first)
+			current->parent->left = NULL;
+		else
+			current->parent->right = NULL;
+		delete current;
+		//free(node);
+	}//two childs
+}
 template<class key_T, class mapped_T>
 void Map_T<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
 	if(node != NULL){
 		deleteNode(node->left);
 		deleteNode(node->right);
-		node->left = NULL;
-		node->right = NULL;
-		free(node);
+		//node->left = NULL;
+		//node->right = NULL;
+		delete node;
 	}
 }
 
 template<class key_T, class mapped_T>
 Map_T<key_T, mapped_T>::~Map_T(){
+	cout<<"In destructor"<<endl;
 	if(this->root)
 		deleteNode(this->root);
 }
@@ -563,4 +628,5 @@ const pair<key_T, mapped_T>& Map_T<key_T, mapped_T>::ConstIterator::operator*() 
 template<typename key_T, typename mapped_T>
 const pair<key_T, mapped_T>* Map_T<key_T, mapped_T>::ConstIterator::operator->() const{
 	return node->data;
+}
 }

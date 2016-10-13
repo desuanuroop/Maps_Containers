@@ -7,6 +7,7 @@
 #include "Map.hpp"
 
 using namespace std;
+using namespace cs540;
 void original();
 
 /*
@@ -45,10 +46,11 @@ int main(int argc, char *argv[]){
 	else{
 		Map_T<int, int> map;
 		auto b = map.insert(make_pair(10, 10));
-		map.insert(make_pair(20, 20));
+		b = map.insert(make_pair(20, 20));
 		map.insert(make_pair(30, 30));
 		map.insert(make_pair(40, 40));
 		map.insert(make_pair(50, 50));
+//		Map_T<int, int> map2{{61, 61}, {71, 71}};
 		b = map.insert(make_pair(50, 50));
 		cout<<b.second<<endl;
 		auto it = map.end();
@@ -99,6 +101,27 @@ int main(int argc, char *argv[]){
 		assert(cit.first == 20);
 		assert(map2.size() == map.size());
 		cout<<"Begin is: "<<it.second<<endl;
+		try {
+			//map.erase(20);
+		}catch(std::out_of_range e){
+			cout<<"Not in range"<<endl;
+		}
+		assert(map.root->right->data->first == 50);
+		assert(map.begin().first == 2);
+		it = map.begin();
+		++it;
+		it++;
+		it++;
+		//assert(it.first == 40);
+		map.insert(make_pair(55, 55));
+		try{
+			//map.erase(55);
+		}catch(std::out_of_range e){
+			cout<<"Not in range"<<endl;
+		}
+		//assert(map.root->right->data->first == 60);
+		map.clear();
+//		map2.clear();
 //		Map_T<int, int> map3(map);
 //		cout<<"Begin is: "<< map3.root->left->data->first<<endl;
 //		assert(map.begin().first == map3.begin().first);
