@@ -1,20 +1,16 @@
 #include <iostream>
 
-class A{
+class B{
 	public:
-		class B{
-			public:
-				int i;
-		};
-		int j;
-		B bs();
+		int x;
 };
-
-A::B A::bs(){
-        B();
-}
-
+class A: public B{
+	public:
+	A(int a){
+		x = a;
+	}
+};
 int main(){
-	A::B obj;
-	obj.i =100;
+	A(2);
+return 1;
 }

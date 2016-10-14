@@ -113,17 +113,27 @@ treeNode<key_T, mapped_T>* doubleWithRightChild(treeNode<key_T, mapped_T> *paren
 }
 
 template<class key_T, class mapped_T>
-class Map_T{
+class Map{
         //Iterator Class
 	public:
 	typedef pair<key_T, mapped_T> valueType;
-	class Iterator {
+	class IteratorMembers{
 		public:
 			key_T first;
 			mapped_T second;
 			treeNode<key_T, mapped_T> *node;
-                        treeNode<key_T, mapped_T> *root;
+			treeNode<key_T, mapped_T> *root;
 			treeNode<key_T, mapped_T> *parent;
+			IteratorMembers(){};
+			void assign(treeNode<key_T, mapped_T> *);
+	};
+	class Iterator:public IteratorMembers {
+		public:
+/*			key_T first;
+			mapped_T second;
+			treeNode<key_T, mapped_T> *node;
+                        treeNode<key_T, mapped_T> *root;
+			treeNode<key_T, mapped_T> *parent;*/
 			//Methods
 			Iterator(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T> *);//constructor
 			Iterator& operator++();
@@ -132,19 +142,18 @@ class Map_T{
 			Iterator operator--(int);//postdecrement
 			valueType& operator*() const;
 			valueType* operator->() const;
-			void assign(treeNode<key_T, mapped_T> *);
+//			void assign(treeNode<key_T, mapped_T> *);
 	};
 	class ConstIterator{
 		public:
 			key_T first;
 			mapped_T second;
-		private:
 			const treeNode<key_T, mapped_T> *node;
                         treeNode<key_T, mapped_T> *root;
 			treeNode<key_T, mapped_T> *parent;
 			//Methods
 		public:
-			ConstIterator(const Iterator &);
+			ConstIterator(const Iterator &);//conversion
 			ConstIterator(const treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T> *);//constructor
 			ConstIterator& operator++();
 			ConstIterator operator++(int);//postincrement
@@ -154,7 +163,18 @@ class Map_T{
 			const valueType* operator->() const;
 			void assign(treeNode<key_T, mapped_T> *);
 	};
-	//Map_T class memebers.
+	class ReverseIterator: public IteratorMembers{
+		public:
+                        ReverseIterator(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T> *);//constructor
+			ReverseIterator& operator++();
+			ReverseIterator operator++(int);
+			ReverseIterator& operator--();
+			ReverseIterator operator--(int);
+			valueType& operator*()const;
+			valueType *operator->()const;
+//			void assign(treeNode<key_T, mapped_T> *);
+	};
+	//Map class memebers.
 	treeNode<key_T, mapped_T> *root;
 	int count;
 
@@ -162,14 +182,14 @@ class Map_T{
 	treeNode<key_T, mapped_T>* InsertTraversal(treeNode<key_T, mapped_T> *, treeNode<key_T, mapped_T>*);
 
 	//Constructor and Assignment Operators
-	Map_T();
-	Map_T& operator=(const Map_T &);
-	Map_T(const Map_T<key_T, mapped_T> &);
-	Map_T(std::initializer_list<std::pair<const key_T, mapped_T>>);
+	Map();
+	Map& operator=(const Map &);
+	Map(const Map<key_T, mapped_T> &);
+	Map(std::initializer_list<std::pair<const key_T, mapped_T>>);
 	void erase(const key_T &);
 	void clear();
 	void deleteNode(treeNode<key_T, mapped_T> *);
-	~Map_T();
+	~Map();
 
         //Size
         size_t size() const;
@@ -180,15 +200,18 @@ class Map_T{
 	//Iterator
 	Iterator begin(); //Points to first elment in map
 	Iterator end();
-	Iterator rbegin();//Changes these two to ReverseIterator
-	Iterator rend();
 
 	//ConstIterator
 	ConstIterator begin() const;
 	ConstIterator end() const;
 
+	//ReverseIterator
+	ReverseIterator rbegin();
+	ReverseIterator rend();
+
         //Element Access
         Iterator find(const key_T &);
+	ConstIterator find(const key_T &)const;
         mapped_T& at(const key_T &);
         const mapped_T& at(const key_T &) const;
         mapped_T& operator[](const key_T &);
@@ -196,28 +219,28 @@ class Map_T{
 
 //Map methods
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::Map_T(){
+Map<key_T, mapped_T>::Map(){
 //	cout<<"In constructor"<<endl;
 	this->count = 0;
 	this->root = NULL;
 }
 //copy constructor
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::Map_T(const Map_T<key_T, mapped_T> &original){
+Map<key_T, mapped_T>::Map(const Map<key_T, mapped_T> &original){
 	this->count = 0;
 	this->root = NULL;
 	this->root = this->InsertTraversal(original.root, this->root);
 	indexing(this->root, 0);
 }
 template<typename key_T, typename mapped_T>
-Map_T<key_T, mapped_T>::Map_T(std::initializer_list<std::pair<const key_T, mapped_T>> lis){
+Map<key_T, mapped_T>::Map(std::initializer_list<std::pair<const key_T, mapped_T>> lis){
 	typename std::initializer_list<std::pair<const key_T, mapped_T>>::iterator it;
 	for (it=lis.begin(); it!=lis.end(); ++it){
 		this->insert(*it);
 	}
 }
 template<class key_T, class mapped_T>
-treeNode<key_T, mapped_T>* Map_T<key_T, mapped_T>::InsertTraversal(treeNode<key_T, mapped_T> *original, treeNode<key_T, mapped_T> *ro){
+treeNode<key_T, mapped_T>* Map<key_T, mapped_T>::InsertTraversal(treeNode<key_T, mapped_T> *original, treeNode<key_T, mapped_T> *ro){
 	if(original == NULL)
 		return NULL;
 	InsertTraversal(original->left, this->root);
@@ -228,13 +251,13 @@ return this->root;
 }
 
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>& Map_T<key_T, mapped_T>:: operator=(const Map_T<key_T, mapped_T> &rhs){
+Map<key_T, mapped_T>& Map<key_T, mapped_T>:: operator=(const Map<key_T, mapped_T> &rhs){
 	this->root = this->InsertTraversal(rhs.root, this->root);
 	indexing(this->root, 0);
 }
 
 template<class key_T, class mapped_T>
-pair<typename Map_T<key_T, mapped_T>::Iterator, bool> Map_T<key_T, mapped_T>::insert(const pair<key_T, mapped_T> idata){
+pair<typename Map<key_T, mapped_T>::Iterator, bool> Map<key_T, mapped_T>::insert(const pair<key_T, mapped_T> idata){
 	try{
 		this->root = this->root->insert(this->root, idata);
 		this->count++;
@@ -258,7 +281,7 @@ int indexing(treeNode<key_T, mapped_T> *root, int n){
 	return n;
 }
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::begin(){
+typename Map<key_T, mapped_T>::Iterator Map<key_T, mapped_T>::begin(){
 //	cout<<"In Begin"<<endl;
 	treeNode<key_T, mapped_T> *begin = root;
 	while(begin->left != NULL)
@@ -267,7 +290,7 @@ return Iterator(begin, this->root);
 }
 
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::end(){
+typename Map<key_T, mapped_T>::Iterator Map<key_T, mapped_T>::end(){
 	treeNode<key_T, mapped_T> *end = root;
 	while(end != NULL)
 		end = end->right;
@@ -275,7 +298,7 @@ return Iterator(end, this->root);
 }
 
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::ConstIterator Map_T<key_T, mapped_T>::begin() const{
+typename Map<key_T, mapped_T>::ConstIterator Map<key_T, mapped_T>::begin() const{
 	cout<<"In const beegin"<<endl;
 	treeNode<key_T, mapped_T> *begin = root;
 	while(begin->left != NULL)
@@ -285,31 +308,31 @@ return ConstIterator(it);
 }
 
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::ConstIterator Map_T<key_T, mapped_T>::end() const{
+typename Map<key_T, mapped_T>::ConstIterator Map<key_T, mapped_T>::end() const{
 	treeNode<key_T, mapped_T> *end = root;
 	while(end != NULL)
 		end = end->right;
 	Iterator it(end, this->root);
-return ConstIterator(it, it.node);
+return ConstIterator(it);
 }
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::rbegin(){
+typename Map<key_T, mapped_T>::ReverseIterator Map<key_T, mapped_T>::rbegin(){
 	treeNode<key_T, mapped_T> *begin = root;
 	while(begin->right != NULL)
 		begin = begin->right;
-return Iterator(begin, this->root);
+return ReverseIterator(begin, this->root);
 }
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>:: rend(){
+typename Map<key_T, mapped_T>::ReverseIterator Map<key_T, mapped_T>:: rend(){
 	treeNode<key_T, mapped_T> *end = root;
 	while(end != NULL)
 		end = end->left;
-return Iterator(end, this->root);
+return ReverseIterator(end, this->root);
 }
 
 //Element Access
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::find(const key_T &tofind){
+typename Map<key_T, mapped_T>::Iterator Map<key_T, mapped_T>::find(const key_T &tofind){
 	treeNode<key_T, mapped_T> *current = this->root;
 	int flag =1;
 	while(current){
@@ -317,10 +340,10 @@ typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::find(const key
 			flag = 0;
 			break;
 		}
-		else if(current->data->first > tofind)
-			current = current->left;
-		else
+		else if(current->data->first < tofind)
 			current = current->right;
+		else
+			current = current->left;
 	}
 	if(flag)
 		return this->end();
@@ -328,8 +351,29 @@ typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::find(const key
 	else
 		return Iterator(current, this->root);
 }
+
+template<typename key_T, typename mapped_T>
+typename Map<key_T, mapped_T>::ConstIterator Map<key_T, mapped_T>::find(const key_T &tofind) const{
+        treeNode<key_T, mapped_T> *current = this->root;
+        int flag =1;
+        while(current){
+                if(current->data->first == tofind) {
+                        flag = 0;
+                        break;
+                }
+                else if(current->data->first < tofind)
+                        current = current->right;
+                else
+                        current = current->left;
+        }
+        if(flag)
+                return this->end();
+//              cout<<"Element not found"<<endl;
+        else
+                return ConstIterator(current, this->root);
+}
 template<class key_T, class mapped_T>
-mapped_T& Map_T<key_T, mapped_T>::at(const key_T &gkey){
+mapped_T& Map<key_T, mapped_T>::at(const key_T &gkey){
 	treeNode<key_T, mapped_T> *current = this->root;
 	int flag=0;
 	while(current){
@@ -347,7 +391,7 @@ mapped_T& Map_T<key_T, mapped_T>::at(const key_T &gkey){
 		throw std::out_of_range("Out of bound");
 }
 template<class key_T, class mapped_T>
-const mapped_T& Map_T<key_T, mapped_T>::at(const key_T &gkey) const{
+const mapped_T& Map<key_T, mapped_T>::at(const key_T &gkey) const{
 	treeNode<key_T, mapped_T> *current = this->root;
 	int flag = 0;
         while(current){
@@ -367,22 +411,7 @@ const mapped_T& Map_T<key_T, mapped_T>::at(const key_T &gkey) const{
 }
 
 template<class key_T, class mapped_T>
-mapped_T& Map_T<key_T, mapped_T>::operator[](const key_T &index){
-/*	treeNode<key_T, mapped_T> *ref = MorrisTraversal(this->root, index);
-	cout<<"Returned is: "<< ref->data.first<<" "<<index<<endl;
-	return ref->data.second;
-
-	treeNode<key_T, mapped_T> *current = this->root;
-	while(current){
-		if(current->num == index)
-			return current->data.second;
-		else if(current->num < index)
-			current = current->right;
-		else
-			current = current->left;
-	}
-	this->root = this->root->insert(this->root, make_pair(NULL, NULL), ++this->count);
-	return root->data.second;*/
+mapped_T& Map<key_T, mapped_T>::operator[](const key_T &index){
 check:
 	treeNode<key_T, mapped_T> *current = this->root;
 	while(current){
@@ -399,19 +428,18 @@ check:
 	goto check;
 }
 
-//Size
 template<class key_T, class mapped_T>
-size_t Map_T<key_T, mapped_T>::size() const{
+size_t Map<key_T, mapped_T>::size() const{
 	return this->count;
 }
 template<typename key_T, typename mapped_T>
-void Map_T<key_T, mapped_T>::clear(){
+void Map<key_T, mapped_T>::clear(){
 	if(this->root)
 		deleteNode(this->root);
 	this->root=NULL;
 }
 template<typename key_T, typename mapped_T>
-void Map_T<key_T, mapped_T>::erase(const key_T& delKeyNode){
+void Map<key_T, mapped_T>::erase(const key_T& delKeyNode){
 	treeNode<key_T, mapped_T> *current = this->root;
 	while(current){
 		if(current->data->first == delKeyNode){
@@ -461,26 +489,46 @@ void delNode(treeNode<key_T, mapped_T> *node){
 	}//two childs
 }
 template<class key_T, class mapped_T>
-void Map_T<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
+void Map<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
 	if(node != NULL){
 		deleteNode(node->left);
 		deleteNode(node->right);
 		//node->left = NULL;
 		//node->right = NULL;
+		delete node->data;
 		delete node;
 	}
 }
 
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::~Map_T(){
+Map<key_T, mapped_T>::~Map(){
 	cout<<"In destructor"<<endl;
 	if(this->root)
 		deleteNode(this->root);
 }
-
+//Comparators of map
+template<typename key_T, typename mapped_T>
+bool operator==(const Map<key_T, mapped_T> &map, const Map<key_T, mapped_T> &map2){
+	int size = map.size();
+	if(map.size() != map2.size())
+		return false;
+	else{
+		for(int i=1;i<=size;i++){
+			treeNode<key_T, mapped_T> *node1 = findNum(map.root, i);
+			treeNode<key_T, mapped_T> *node2 = findNum(map2.root, i);
+			if((node1 == NULL || node2 == NULL) || (*node1->data != *node2->data))
+				return false;
+		}
+	}
+	return true;
+}
+template<typename key_T, typename mapped_T>
+bool operator!=(const Map<key_T, mapped_T> &map, const Map<key_T, mapped_T> &map2){
+	return !(map == map2);
+}
 //InnerClass Iterators
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::Iterator::Iterator(treeNode<key_T, mapped_T> *Node, treeNode<key_T, mapped_T> *root){
+Map<key_T, mapped_T>::Iterator::Iterator(treeNode<key_T, mapped_T> *Node, treeNode<key_T, mapped_T> *root){
         this->root = root;
 	if(Node != NULL){
 		this->node = Node;
@@ -507,7 +555,7 @@ treeNode<key_T, mapped_T>* findNum(treeNode<key_T, mapped_T> *root, int index){
 	return current;
 }
 template<class key_T, class mapped_T>
-void Map_T<key_T, mapped_T>::Iterator::assign(treeNode<key_T, mapped_T> *current){
+void Map<key_T, mapped_T>::IteratorMembers::assign(treeNode<key_T, mapped_T> *current){
 	this->node = current;
         if(current){
                 this->first = current->data->first;
@@ -519,43 +567,43 @@ void Map_T<key_T, mapped_T>::Iterator::assign(treeNode<key_T, mapped_T> *current
         }
 }
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator& Map_T<key_T, mapped_T>::Iterator::operator++(){//preincrement
-	treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
-	assign(current);
+typename Map<key_T, mapped_T>::Iterator& Map<key_T, mapped_T>::Iterator::operator++(){//preincrement
+	treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num+1);
+	this->assign(current);
 	return *this;
 }
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::Iterator::operator++(int x){ //postincrement
-	Map_T<key_T, mapped_T>::Iterator haveToReturn(this->node, this->root);
-	treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
-	assign(current);
+typename Map<key_T, mapped_T>::Iterator Map<key_T, mapped_T>::Iterator::operator++(int x){ //postincrement
+	Map<key_T, mapped_T>::Iterator haveToReturn(this->node, this->root);
+	treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num+1);
+	this->assign(current);
 	return haveToReturn;
 }
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator& Map_T<key_T, mapped_T>::Iterator::operator--(){//predecrement
-	treeNode<key_T, mapped_T> *current = findNum(root, node->num-1);
-	assign(current);
+typename Map<key_T, mapped_T>::Iterator& Map<key_T, mapped_T>::Iterator::operator--(){//predecrement
+	treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num-1);
+	this->assign(current);
 	return *this;
 }
 template<class key_T, class mapped_T>
-typename Map_T<key_T, mapped_T>::Iterator Map_T<key_T, mapped_T>::Iterator::operator--(int x){ //postincrement
-        Map_T<key_T, mapped_T>::Iterator havetoReturn(this->node, this->root);
-        treeNode<key_T, mapped_T> *current = findNum(root, node->num-1);
-        assign(current);
+typename Map<key_T, mapped_T>::Iterator Map<key_T, mapped_T>::Iterator::operator--(int x){ //postincrement
+        Map<key_T, mapped_T>::Iterator havetoReturn(this->node, this->root);
+        treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num-1);
+        this->assign(current);
         return havetoReturn;
 }
 template<class key_T, class mapped_T>
-pair<key_T, mapped_T>& Map_T<key_T, mapped_T>::Iterator::operator*() const{
-	return *node->data;
+pair<key_T, mapped_T>& Map<key_T, mapped_T>::Iterator::operator*() const{
+	return *this->node->data;
 }
 template<typename key_T, typename mapped_T>
-pair<key_T, mapped_T>* Map_T<key_T, mapped_T>::Iterator::operator->() const{
-	return node->data;
+pair<key_T, mapped_T>* Map<key_T, mapped_T>::Iterator::operator->() const{
+	return this->node->data;
 }
 //ConstIterator Class
 //constructor
 template<typename key_T, typename mapped_T>
-Map_T<key_T, mapped_T>::ConstIterator::ConstIterator(const treeNode<key_T, mapped_T> *Node, treeNode<key_T, mapped_T> *root){
+Map<key_T, mapped_T>::ConstIterator::ConstIterator(const treeNode<key_T, mapped_T> *Node, treeNode<key_T, mapped_T> *root){
         this->root = root;
         if(Node != NULL){
                 this->node = Node;
@@ -570,7 +618,7 @@ Map_T<key_T, mapped_T>::ConstIterator::ConstIterator(const treeNode<key_T, mappe
 
 //Conversion from Iterator to ConstIterator
 template<class key_T, class mapped_T>
-Map_T<key_T, mapped_T>::ConstIterator::ConstIterator(const Map_T<key_T, mapped_T>::Iterator &it){
+Map<key_T, mapped_T>::ConstIterator::ConstIterator(const Map<key_T, mapped_T>::Iterator &it){
 	this->root = it.root;
 	if(it.node != NULL){
 		this->node = it.node;
@@ -583,7 +631,7 @@ Map_T<key_T, mapped_T>::ConstIterator::ConstIterator(const Map_T<key_T, mapped_T
 	}
 }
 template<class key_T, class mapped_T>
-void Map_T<key_T, mapped_T>::ConstIterator::assign(treeNode<key_T, mapped_T> *current){
+void Map<key_T, mapped_T>::ConstIterator::assign(treeNode<key_T, mapped_T> *current){
 	this->node = current;
         if(current){
                 this->first = current->data->first;
@@ -596,37 +644,89 @@ void Map_T<key_T, mapped_T>::ConstIterator::assign(treeNode<key_T, mapped_T> *cu
 }
 
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::ConstIterator& Map_T<key_T, mapped_T>::ConstIterator::operator++(){//preincrement
+typename Map<key_T, mapped_T>::ConstIterator& Map<key_T, mapped_T>::ConstIterator::operator++(){//preincrement
 	treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
 	assign(current);
 	return *this;
 }
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::ConstIterator Map_T<key_T, mapped_T>::ConstIterator::operator++(int z){//postincrement
-        Map_T<key_T, mapped_T>::ConstIterator haveToReturn(this->node, this->root);
+typename Map<key_T, mapped_T>::ConstIterator Map<key_T, mapped_T>::ConstIterator::operator++(int z){//postincrement
+        Map<key_T, mapped_T>::ConstIterator haveToReturn(this->node, this->root);
         treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
         assign(current);
         return haveToReturn;
 }
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::ConstIterator& Map_T<key_T, mapped_T>::ConstIterator::operator--(){//predecrement
+typename Map<key_T, mapped_T>::ConstIterator& Map<key_T, mapped_T>::ConstIterator::operator--(){//predecrement
         treeNode<key_T, mapped_T> *current = findNum(root, node->num-1);
         assign(current);
         return *this;
 }
 template<typename key_T, typename mapped_T>
-typename Map_T<key_T, mapped_T>::ConstIterator Map_T<key_T, mapped_T>::ConstIterator::operator--(int z){//postdecrement
-        Map_T<key_T, mapped_T>::ConstIterator haveToReturn(this->node, this->root);
+typename Map<key_T, mapped_T>::ConstIterator Map<key_T, mapped_T>::ConstIterator::operator--(int z){//postdecrement
+        Map<key_T, mapped_T>::ConstIterator haveToReturn(this->node, this->root);
         treeNode<key_T, mapped_T> *current = findNum(root, node->num+1);
         assign(current);
         return haveToReturn;
 }
 template<typename key_T, typename mapped_T>
-const pair<key_T, mapped_T>& Map_T<key_T, mapped_T>::ConstIterator::operator*() const{
+const pair<key_T, mapped_T>& Map<key_T, mapped_T>::ConstIterator::operator*() const{
         return *node->data;
 }
 template<typename key_T, typename mapped_T>
-const pair<key_T, mapped_T>* Map_T<key_T, mapped_T>::ConstIterator::operator->() const{
+const pair<key_T, mapped_T>* Map<key_T, mapped_T>::ConstIterator::operator->() const{
 	return node->data;
 }
+
+//ReverseIterator
+template<typename key_T, typename mapped_T>
+Map<key_T, mapped_T>::ReverseIterator::ReverseIterator(treeNode<key_T, mapped_T> *Node, treeNode<key_T, mapped_T> *root){
+        this->root = root;
+        if(Node != NULL){
+                this->node = Node;
+                this->first = Node->data->first;
+                this->second = Node->data->second;
+        }else{
+                this->node = Node;
+                this->first = 0;
+                this->second = 0;
+        }
 }
+template<typename key_T, typename mapped_T>
+typename Map<key_T, mapped_T>::ReverseIterator& Map<key_T, mapped_T>::ReverseIterator::operator++(){ //since it is reverse, write code as pree decrement.
+	treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num-1);
+	this->assign(current);
+	return *this;
+}
+
+template<typename key_T, typename mapped_T>
+typename Map<key_T, mapped_T>::ReverseIterator Map<key_T, mapped_T>::ReverseIterator::operator++(int x){//code as post decrement
+        Map<key_T, mapped_T>::ReverseIterator haveToReturn(this->node, this->root);
+	treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num-1);
+	this->assing(current);
+	return haveToReturn;
+}
+template<typename key_T, typename mapped_T>
+typename Map<key_T, mapped_T>::ReverseIterator& Map<key_T, mapped_T>::ReverseIterator::operator--(){ //since it is reverse, write code as pree decrement.
+        treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num+1);
+        this->assign(current);
+        return *this;
+}
+
+template<typename key_T, typename mapped_T>
+typename Map<key_T, mapped_T>::ReverseIterator Map<key_T, mapped_T>::ReverseIterator::operator--(int x){//code as post decrement
+        Map<key_T, mapped_T>::ReverseIterator haveToReturn(this->node, this->root);
+        treeNode<key_T, mapped_T> *current = findNum(this->root, this->node->num+1);
+        this->assing(current);
+        return haveToReturn;
+}
+template<class key_T, class mapped_T>
+pair<key_T, mapped_T>& Map<key_T, mapped_T>::ReverseIterator::operator*() const{
+        return *this->node->data;
+}
+template<typename key_T, typename mapped_T>
+pair<key_T, mapped_T>* Map<key_T, mapped_T>::ReverseIterator::operator->() const{
+        return this->node->data;
+}
+
+}//End of namespace

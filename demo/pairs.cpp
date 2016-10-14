@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <iostream>
+#include <assert.h>
 using namespace std;
 template<class t1, class t2>
 pair<t1, t2> ret(t1 a, t2 b){
@@ -17,6 +18,8 @@ int main(){
 	cout<<"product price is:"<< pointer->second<<endl;
 
 	pair<int, int> p = ret(1, 23);
+	pair<int, int > p2 = ret(1, 23);
+	assert(p == p2);
 	cout<<p.first<<p.second<<endl;
 return 1;
 }

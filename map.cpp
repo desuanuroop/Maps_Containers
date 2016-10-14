@@ -21,6 +21,7 @@ struct Person {
     friend bool operator==(const Person &p1, const Person &p2) {
         return p1.name == p2.name;
     }
+    Person(){}
     Person(const char *n) : name(n) {}
     void print() const {
         printf("Name: %s\n", name.c_str());
@@ -30,21 +31,21 @@ struct Person {
 };
 
 int main(int argc, char *argv[]){
-/*	if (argc ==2 ){
+	if (argc ==2 ){
 		Person p1("Jane");
 		Person p2("Lisbon");
 		Person p3("Cho");
-		Map_T<const Person, int > map;
+		Map<Person, int > map;
 		map.insert(make_pair(p3, 3));
-		assert(map.root->data->second == 3);
+/*		assert(map.root->data->second == 3);
 		map.insert(make_pair(p2, 2));
 		map.insert(make_pair(p1, 1));
-		cout<<"fdfd"<<endl;
-	}*/
-	if(argc == 2)
-		original();
+		cout<<"fdfd"<<endl;*/
+	}
+/*	if(argc == 2)
+		original();*/
 	else{
-		Map_T<int, int> map;
+		Map<int, int> map;
 		auto b = map.insert(make_pair(10, 10));
 		b = map.insert(make_pair(20, 20));
 		map.insert(make_pair(30, 30));
@@ -55,7 +56,8 @@ int main(int argc, char *argv[]){
 		cout<<b.second<<endl;
 		auto it = map.end();
 		auto i(it);
-		assert(i.first == it.first);
+		auto j = it;
+		assert(i.first == j.first && i.first == it.first);
 		assert(it.first == 0);
 		it = map.begin();
 		assert(it.first == 10);
@@ -69,10 +71,12 @@ int main(int argc, char *argv[]){
 		assert(p.first == it.first);
 		assert(it.second == 10);
 		assert(it.first == 10);
-		it = map.rbegin();
-		assert(it.first == 50);
-		it = map.rend();
-		assert(it.first == 0);
+		auto rit = map.rbegin();
+		assert(rit.first == 50);
+		++rit;
+		assert(rit.first == 40);
+		rit = map.rend();
+		assert(rit.first == 0);
 		map.insert(make_pair(60, 60));
 		bool thrown = false;
 		try {
@@ -81,7 +85,7 @@ int main(int argc, char *argv[]){
 		}catch(std::out_of_range e){
 			thrown = true;
 		}
-		map[1] = 100;
+		map.insert(make_pair(1, 100));
 		assert(!map.empty());
 		assert(map.root->left->left->left->data->second == 100);
 		cout<<"Out of try"<<endl;
@@ -93,8 +97,11 @@ int main(int argc, char *argv[]){
 		assert(!map.empty());
 		it = map.begin();
 		it->first = 2;
-		const Map_T<int, int> map2(map);
+		const Map<int, int> map2(map);
+		auto cfin = map2.find(10);
 		auto cit = map2.begin();
+		assert(map.find(10).second == map2.find(10).second);
+		assert(cfin.first == 10);
 		assert(cit.first == 2);
 		++cit;
 		cit++;
@@ -113,6 +120,7 @@ int main(int argc, char *argv[]){
 		it++;
 		it++;
 		//assert(it.first == 40);
+		assert(map == map2);
 		map.insert(make_pair(55, 55));
 		try{
 			//map.erase(55);
@@ -120,9 +128,10 @@ int main(int argc, char *argv[]){
 			cout<<"Not in range"<<endl;
 		}
 		//assert(map.root->right->data->first == 60);
+		assert(map != map2);
 		map.clear();
 //		map2.clear();
-//		Map_T<int, int> map3(map);
+//		Map<int, int> map3(map);
 //		cout<<"Begin is: "<< map3.root->left->data->first<<endl;
 //		assert(map.begin().first == map3.begin().first);
 	}
