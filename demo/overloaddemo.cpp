@@ -1,5 +1,7 @@
 #include <iostream>
-using namespace std;
+#include <assert.h>
+
+template<typename key_T>
 class Demo{
 	public:
 		int l;
@@ -7,24 +9,31 @@ class Demo{
         int at() const;
 	void operator[](int);
 };
-Demo::Demo(){
+template<typename key_T>
+Demo<key_T>::Demo(){
     l = 12;
 }
-int Demo::at() const{
-   cout<<"In const of at"<<endl;
+template<typename key_T>
+int Demo<key_T>::at() const{
+   std::cout<<"In const of at"<<std::endl;
    int a =3;
 return a;
 }
 
-void Demo::operator[](int x){
-	cout<<"X is: "<< x<<endl;
+template<typename key_T>
+void Demo<key_T>::operator[](int x){
+	std::cout<<"X is: "<< x<<std::endl;
 }
-
+template<typename key_T>
+bool operator==(const Demo<key_T> &d1, const Demo<key_T> d2){
+return true;
+}
 int main(){
-    const Demo a;
+    const Demo<int> a;
     const int z = a.at();
-    cout<<"z val:"<<z<<endl;
-    Demo b;
+    std::cout<<"z val:"<<z<<std::endl;
+    Demo<int> b;
+	assert(a == b);
     b.at();
     b[3];
 return 0;

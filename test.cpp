@@ -144,9 +144,27 @@ run_test(int iterations) {
         map.insert(std::make_pair(p3, 3));
         map.insert(std::make_pair(p4, 4));
 
-	}
-}
+        // Check iterator equality.
+        {
+            // Returns an iterator pointing to the first element.
+            auto it1 = map.begin();
+            // Returns an iterator pointing to one PAST the last element.  This
+            // iterator is obviously conceptual only.  It cannot be
+            // dereferenced.
+            auto it2 = map.end();
 
+            it1++; // Second node now.
+            it1++; // Third node now.
+            it2--; // Fourth node now.
+            it2--; // Third node now.
+            assert(it1 == it2);
+            it2--; // Second node now.
+            it2--; // First node now.
+            assert(map.begin() == it2);
+        }
+
+   }
+}
 int main(){
 	run_test<test_map>(1);
 return 1;

@@ -1,14 +1,34 @@
 //ALSO check for num in nodes, we are starting from 0.
-#include <iostream>
-#include <stdlib.h>
-#include <map>
-#include <vector>
 #include <stdio.h>
+#include <unistd.h>
+#include <assert.h>
+#include <string.h>
+#include <stdlib.h>
+#include <iostream>
+#include <set>
+#include <vector>
+#include <map>
+#include <utility>
 #include "Map.hpp"
 
 using namespace std;
 using namespace cs540;
 void original();
+
+/*
+ * Person class.
+ */
+
+template <typename K, typename V>
+class test_map : public std::map<K, V> {
+    private:
+        using base_t = std::map<K, V>;
+    public:
+        using Iterator = typename base_t::iterator;
+        std::pair<typename base_t::iterator, bool>insert(const std::pair<const K, V> &p) {
+            return this->base_t::insert(p);
+        }
+};
 
 /*
  * Person class.
@@ -21,7 +41,6 @@ struct Person {
     friend bool operator==(const Person &p1, const Person &p2) {
         return p1.name == p2.name;
     }
-    Person(){}
     Person(const char *n) : name(n) {}
     void print() const {
         printf("Name: %s\n", name.c_str());
@@ -30,18 +49,121 @@ struct Person {
     Person &operator=(const Person &) = delete;
 };
 
+void
+print(const std::pair<const Person, int> &p) {
+    p.first.print();
+    printf("    %d\n", p.second);
+}
+
+/*
+ * MyClass class.
+ */
+
+struct MyClass {
+    friend bool operator<(const MyClass &o1, const MyClass &o2) {
+        return o1.num < o2.num;
+    }
+    friend bool operator==(const MyClass &o1, const MyClass &o2) {
+        return o1.num == o2.num;
+    }
+    MyClass(double n) : num(n) {}
+    double num;
+};
+
+void
+print(const std::pair<const int, std::string> &p) {
+    printf("%d, %s; ", p.first, p.second.c_str());
+}
+
+/*
+ * Stress class.
+ */
+
+struct Stress {
+    friend bool operator<(const Stress& o1, const Stress& o2) {
+        return o1.val < o2.val;
+    }
+    friend bool operator==(const Stress& o1, const Stress& o2) {
+        return o1.val == o2.val;
+    }
+    Stress(int _v) : val(_v){}
+    int val;
+};
+// Helper function for stress testing. This orders iterators by what they point to.
+template <template <typename, typename> class MAP_T>
+inline bool
+less(const typename MAP_T<const Stress, double>::Iterator &lhs, const typename MAP_T<const Stress, double>::Iterator &rhs) {
+    return (*lhs).first.val < (*rhs).first.val;
+}
+
+/*
+ * Additional test functions for BST.
+ */
+
+template <template <typename, typename> class MAP_T>
+void traverse(const MAP_T<const Person, int> &, int level);
+
+template <template <typename, typename> class MAP_T>
+void traverse2(int level);
+
+template <template <typename, typename> class MAP_T>
+void check(const MAP_T<const Stress, double> &, const std::map<const Stress, double> &);
+
+/*
+ * The actual test code.  It's a template so that it can be run with the std::map and the
+ * assignment Map.
+ */
+
 int main(int argc, char *argv[]){
 	if (argc ==2 ){
 		Person p1("Jane");
-		Person p2("Lisbon");
-		Person p3("Cho");
-		Map<Person, int > map;
-		map.insert(make_pair(p3, 3));
-/*		assert(map.root->data->second == 3);
-		map.insert(make_pair(p2, 2));
-		map.insert(make_pair(p1, 1));
-		cout<<"fdfd"<<endl;*/
-	}
+	        Person p2("John");
+	        Person p3("Mary");
+	        Person p4("Dave");
+
+        	Map<const Person, int> map;
+
+	        // Insert people into the map.
+	        auto p1_it = map.insert(std::make_pair(p1, 1));
+	        map.insert(std::make_pair(p2, 2));
+	        map.insert(std::make_pair(p3, 3));
+	        map.insert(std::make_pair(p4, 4));
+
+		// Check iterator equality.
+        {
+            // Returns an iterator pointing to the first element.
+            auto it1 = map.begin();
+            // Returns an iterator pointing to one PAST the last element.  This
+            // iterator is obviously conceptual only.  It cannot be
+            // dereferenced.
+            auto it2 = map.end();
+
+            it1++; // Second node now.
+            it1++; // Third node now.
+            it2--; // Fourth node now.
+            it2--; // Third node now.
+		assert(map == map);
+		assert(it1 == it2);
+//            assert(it1 == it2);
+            it2--; // Second node now.
+            it2--; // First node now.
+            assert(map.begin() == it2);
+        }
+	// Check insert return value.
+        {
+            printf("---- Test insert() return.\n");
+            // Insert returns an interator.  If it's already in, it returns an
+            // iterator to the already inserted element.
+            auto it = map.insert(std::make_pair(p1, 1));
+            assert(it.first == p1_it.first);
+            // Now insert one that is new.
+            it = map.insert(std::make_pair(Person("Larry"), 5));
+            print(*(it.first));
+            map.erase(it.first);
+        }
+
+
+	}//end of if
 /*	if(argc == 2)
 		original();*/
 	else{
@@ -57,83 +179,6 @@ int main(int argc, char *argv[]){
 		auto it = map.end();
 		auto i(it);
 		auto j = it;
-		assert(i.first == j.first && i.first == it.first);
-		assert(it.first == 0);
-		it = map.begin();
-		assert(it.first == 10);
-		++it;
-		--it;
-		it++;
-		it--;
-		const auto c = map.begin();
-		auto p = *c;
-		p.second = 100;
-		assert(p.first == it.first);
-		assert(it.second == 10);
-		assert(it.first == 10);
-		auto rit = map.rbegin();
-		assert(rit.first == 50);
-		++rit;
-		assert(rit.first == 40);
-		rit = map.rend();
-		assert(rit.first == 0);
-		map.insert(make_pair(60, 60));
-		bool thrown = false;
-		try {
-			map.at(100) = 100;
-			assert(map.root->left->left->data->second == 100);
-		}catch(std::out_of_range e){
-			thrown = true;
-		}
-		map.insert(make_pair(1, 100));
-		assert(!map.empty());
-		assert(map.root->left->left->left->data->second == 100);
-		cout<<"Out of try"<<endl;
-		assert(thrown);
-		pair<int, int> a = make_pair(10, 10);
-		auto fin = map.find(10);
-		assert(fin.first == 10);
-		assert(map.size() == 7);
-		assert(!map.empty());
-		it = map.begin();
-		it->first = 2;
-		const Map<int, int> map2(map);
-		auto cfin = map2.find(10);
-		auto cit = map2.begin();
-		assert(map.find(10).second == map2.find(10).second);
-		assert(cfin.first == 10);
-		assert(cit.first == 2);
-		++cit;
-		cit++;
-		assert(cit.first == 20);
-		assert(map2.size() == map.size());
-		cout<<"Begin is: "<<it.second<<endl;
-		try {
-			//map.erase(20);
-		}catch(std::out_of_range e){
-			cout<<"Not in range"<<endl;
-		}
-		assert(map.root->right->data->first == 50);
-		assert(map.begin().first == 2);
-		it = map.begin();
-		++it;
-		it++;
-		it++;
-		//assert(it.first == 40);
-		assert(map == map2);
-		map.insert(make_pair(55, 55));
-		try{
-			//map.erase(55);
-		}catch(std::out_of_range e){
-			cout<<"Not in range"<<endl;
-		}
-		//assert(map.root->right->data->first == 60);
-		assert(map != map2);
-		map.clear();
-//		map2.clear();
-//		Map<int, int> map3(map);
-//		cout<<"Begin is: "<< map3.root->left->data->first<<endl;
-//		assert(map.begin().first == map3.begin().first);
 	}
 return 0;
 }
