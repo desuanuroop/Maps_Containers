@@ -27,7 +27,7 @@ void stress(int stress_size) {
 	--it;m.erase(it);*/
 
     int num_erases = gen() % m.size();
-    for(int i = 0; i < 50; ++i) {
+    for(int i = 0; i < stress_size; ++i) {
         //select a random element
         int choice = gen() % m.size();
         auto iter = std::begin(m);

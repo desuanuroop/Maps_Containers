@@ -191,6 +191,7 @@ class Map{
 	void erase(const key_T &);
 	void erase(Iterator pos);
 	void clear();
+	treeNode<key_T, mapped_T>* delNode(treeNode<key_T, mapped_T> *, const key_T &);
 	void deleteNode(treeNode<key_T, mapped_T> *);
 	~Map();
 
@@ -477,16 +478,15 @@ void Map<key_T, mapped_T>::erase(const key_T& delKeyNode){
 	treeNode<key_T, mapped_T> *current = this->root;
 	while(current){
 		if(current->data->first == delKeyNode){
-			if(!current->left && !current->right && !current->parent){
+/*			if(!current->left && !current->right && !current->parent){
 				this->root = NULL;
 				delete current->data;
 				delete current;
 				this->count--;
-			}else{
-				delNode(current);
+			}else{*/
+				 this->root = delNode(this->root, delKeyNode);
 				indexing(this->root, 0);
 				this->count--;
-			}
 			return;
 		}
 		else if(current->data->first < delKeyNode)
@@ -502,6 +502,33 @@ void Map<key_T, mapped_T>::erase(Iterator pos){
 		this->erase(pos->first);
 }
 template<typename key_T, typename mapped_T>
+treeNode<key_T, mapped_T>* Map<key_T, mapped_T>::delNode(treeNode<key_T, mapped_T> *rootN, const key_T &key){
+	if(rootN == NULL)
+		return rootN;
+	if(rootN->data->first < key)
+		rootN->right = delNode(rootN->right, key);
+	else if(key < rootN->data->first)
+		rootN->left = delNode(rootN->left, key);
+	else{
+		if(rootN->left == NULL){
+			treeNode<key_T, mapped_T> *temp = rootN->right;
+			delete rootN->data;
+			delete rootN;
+			return temp;
+		}else if(rootN->right == NULL){
+			treeNode<key_T, mapped_T> *temp = rootN->left;
+			delete rootN->data;
+			delete rootN;
+			return temp;
+		}
+		treeNode<key_T, mapped_T>* temp = findNum(this->root, rootN->num+1);
+		delete rootN->data;
+		rootN->data = temp->data;
+		rootN->right = delNode(rootN->right, temp->data->first);
+	}
+	return rootN;
+}/*
+template<typename key_T, typename mapped_T>
 void delNode(treeNode<key_T, mapped_T> *node){
 	if(!node->left && !node->right){
 		if(node->parent->data->first < node->data->first)
@@ -515,13 +542,13 @@ void delNode(treeNode<key_T, mapped_T> *node){
 			treeNode<key_T, mapped_T> *current = node->right;
 			while(current->left)
 				current = current->left;
-/*			delete node->data;
-			node->data = current->data;*/ //Changed now 1:07 AM
 //			node->num = current->num;
 			if(current->parent->data->first < current->data->first)
 				current->parent->right = current->right;
 			else
 				current->parent->left = current->right; //changed to right.
+			if(current->right)//2.40
+				current->right->parent = current->parent;
 			delete node->data;//now 1:07
 			node->data = current->data;//now 1:07
 			delete current;
@@ -530,7 +557,8 @@ void delNode(treeNode<key_T, mapped_T> *node){
 				node->parent->right = node->right;
 			else
 				node->parent->left = node->right;
-			node->right->parent = node->parent;
+			if(node->right)//2.40
+				node->right->parent = node->parent;
 			delete node->data;
 			delete node;
 		}
@@ -539,13 +567,13 @@ void delNode(treeNode<key_T, mapped_T> *node){
 			treeNode<key_T, mapped_T> *current = node->left;
 			while(current->right)
 				current = current->right;
-/*			delete node->data;
-			node->data = current->data;*/ //Now
 //			node->num = current->num;
 			if(current->parent->data->first < current->data->first)
-				current->parent->right = current->right;
+				current->parent->right = current->left; //2.49 changed from right to left
 			else
-				current->parent->left = current->right;	
+				current->parent->left = current->left;//2.49 changed from right to left.
+			if(current->left)
+				current->left->parent = current->parent;
 			delete node->data;
 			node->data = current->data;
 			delete current;
@@ -555,7 +583,8 @@ void delNode(treeNode<key_T, mapped_T> *node){
 				node->parent->right = node->left;
  			else
 				node->parent->left = node->left;
-			node->left->parent = node->parent;
+			if(node->left)//2.40
+				node->left->parent = node->parent;
 			delete node->data;
 			delete node; //no use of this node.
 		}
@@ -564,8 +593,6 @@ void delNode(treeNode<key_T, mapped_T> *node){
 		treeNode<key_T, mapped_T> *current = node->right;
 		while(current->left)
 			current = current->left;
-//		delete node->data;
-//		node->data = current->data;
 		if(current->parent->data->first < current->data->first){
 			current->parent->right = current->right;
 			if(current->right)
@@ -581,7 +608,7 @@ void delNode(treeNode<key_T, mapped_T> *node){
 		node->data = current->data;
 		delete current;
 	}//two childs
-}
+}*/
 template<class key_T, class mapped_T>
 void Map<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
 	if(node != NULL){
