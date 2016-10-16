@@ -116,6 +116,7 @@ void check(const MAP_T<const Stress, double> &, const std::map<const Stress, dou
 
 int main(int argc, char *argv[]){
 	if (argc ==2 ){
+		original();
 		Person p1("Jane");
 	        Person p2("John");
 	        Person p3("Mary");
@@ -151,17 +152,27 @@ int main(int argc, char *argv[]){
         }
 	// Check insert return value.
         {
+		auto itp = map.begin();
+		++itp;++itp;
+		++itp;
+		assert(itp->second == 3);
             printf("---- Test insert() return.\n");
             // Insert returns an interator.  If it's already in, it returns an
             // iterator to the already inserted element.
             auto it = map.insert(std::make_pair(p1, 1));
             assert(it.first == p1_it.first);
             // Now insert one that is new.
-            it = map.insert(std::make_pair(Person("Larry"), 5));
+           it = map.insert(std::make_pair(Person("Larry"), 5));
             print(*(it.first));
+//	    itp =  map.begin();
+//	    ++itp;
+//	    map.erase(itp);
             map.erase(it.first);
         }
-
+	for(auto it = map.begin(); it != map.end(); ++it){
+//        for (auto &e : map) {
+            print(*it);
+	}
 
 	}//end of if
 /*	if(argc == 2)
@@ -173,9 +184,10 @@ int main(int argc, char *argv[]){
 		map.insert(make_pair(30, 30));
 		map.insert(make_pair(40, 40));
 		map.insert(make_pair(50, 50));
+		map.insert({2, 3});
 //		Map_T<int, int> map2{{61, 61}, {71, 71}};
 		b = map.insert(make_pair(50, 50));
-		cout<<b.second<<endl;
+		assert(map.begin()->first == 2);
 		auto it = map.end();
 		auto i(it);
 		auto j = it;
@@ -188,14 +200,18 @@ void original(){
 	ma.insert(make_pair(10, 10));
 	ma.insert(make_pair(20, 20));
 	ma.insert(make_pair(30, 30));
-	ma.insert(make_pair(40, 40));
+/*	ma.insert(make_pair(40, 40));
 	ma.insert(make_pair(50, 50));
-	ma.insert(make_pair(60, 60));
-	ma[1] = 1000;
+	ma.insert(make_pair(60, 60));*/
 	for (std::map<int,int>::iterator it=ma.begin(); it!=ma.end(); ++it){
 //		cout<< it->first<<endl;
 //		it->first = 100;
 		std::cout << it->first << " => " << it->second << '\n';
 	}
-	ma.insert(make_pair(100, 100));
+	auto it = ma.begin();
+	++it;
+	++it;
+	assert(it->first == 30);
+	++it;
+//	ma.erase(ma.end());
 }

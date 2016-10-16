@@ -1,3 +1,3 @@
 all:
-	g++ map.cpp -g -std=c++11
-	./a.out 1
+	g++ test1.cpp -g -std=c++11
+	./a.out
