@@ -515,15 +515,13 @@ void delNode(treeNode<key_T, mapped_T> *node){
 			treeNode<key_T, mapped_T> *current = node->right;
 			while(current->left)
 				current = current->left;
-/*			delete node->data;
-			node->data = current->data;*/ //Changed now 1:07 AM
+			delete node->data;
+			node->data = current->data;
 //			node->num = current->num;
 			if(current->parent->data->first < current->data->first)
 				current->parent->right = current->right;
 			else
 				current->parent->left = current->right; //changed to right.
-			delete node->data;//now 1:07
-			node->data = current->data;//now 1:07
 			delete current;
 		}else{
 			if(node->parent->data->first < node->data->first)
@@ -539,15 +537,13 @@ void delNode(treeNode<key_T, mapped_T> *node){
 			treeNode<key_T, mapped_T> *current = node->left;
 			while(current->right)
 				current = current->right;
-/*			delete node->data;
-			node->data = current->data;*/ //Now
+			delete node->data;
+			node->data = current->data;
 //			node->num = current->num;
 			if(current->parent->data->first < current->data->first)
 				current->parent->right = current->right;
 			else
-				current->parent->left = current->right;	
-			delete node->data;
-			node->data = current->data;
+				current->parent->left = current->right;
 			delete current;
 		}
 		else{

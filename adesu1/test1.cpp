@@ -511,13 +511,6 @@ run_test(int iterations) {
                 ++n_empty;
             }
 
-		auto it = map.begin();
-		auto mit = mirror.begin();
-
-//		for( ; it != map.end() && mit != mirror.end(); ++it, ++mit) {
-//			std::cout/*<<"Our: "<< it->first<<" "<<(*it).secon*/<<" Mirror: "<< mit->first <<" "<< mit->second <<std::endl;
-//	       }
-	   std::cout<<"i is: "<<i<<std::endl;
             check(map, mirror);
         }
 
@@ -538,7 +531,7 @@ int
 main(int argc, char *argv[]) {
 
     bool correct_output = false;
-    int iterations = 88;
+    int iterations = 50;
 
     {
         int c;
