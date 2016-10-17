@@ -547,7 +547,7 @@ void delNode(treeNode<key_T, mapped_T> *node){
 			if(current->parent->data->first < current->data->first)
 				current->parent->right = current->right;
 			else
-				current->parent->left = current->right; //changed to right.
+				current->parent->left = current->right; //changed to right
 			if(current->right)//2.40
 				current->right->parent = current->parent;
 			delete node->data;//now 1:07
@@ -570,9 +570,9 @@ void delNode(treeNode<key_T, mapped_T> *node){
 				current = current->right;
 //			node->num = current->num;
 			if(current->parent->data->first < current->data->first)
-				current->parent->right = current->left; //2.49 changed from right to left
+				current->parent->right = current->right; //2.49 changed from right to left.. 9.53 left to right on rhs
 			else
-				current->parent->left = current->left;//2.49 changed from right to left.
+				current->parent->left = current->right;//2.49 changed from right to left.
 			if(current->left)
 				current->left->parent = current->parent;
 			delete node->data;

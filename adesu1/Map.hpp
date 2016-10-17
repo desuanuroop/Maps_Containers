@@ -506,7 +506,7 @@ void Map<key_T, mapped_T>::erase(Iterator pos){
 		this->erase(pos->first);
 }
 template<typename key_T, typename mapped_T>
-void delNode(treeNode<key_T, mapped_T> *node){
+void delNode(treeNode<key_T, mapped_T> *node){//adesu1
 	if(!node->left && !node->right){
 		if(node->parent->data->first < node->data->first)
 			node->parent->right = NULL;
@@ -560,7 +560,8 @@ void delNode(treeNode<key_T, mapped_T> *node){
 				node->parent->right = node->left;
  			else
 				node->parent->left = node->left;
-			node->left->parent = node->parent;
+			if(node->left)//Now 10:00 works fine before to this.
+				node->left->parent = node->parent;
 			delete node->data;
 			delete node; //no use of this node.
 		}

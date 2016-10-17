@@ -135,6 +135,6 @@ int main () {
 
     access_by_key();
     stress(10000);
-
+	std::cout<<"END"<<std::endl;
     return 0;
 }
