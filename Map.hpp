@@ -191,7 +191,7 @@ class Map{
 	void erase(const key_T &);
 	void erase(Iterator pos);
 	void clear();
-	treeNode<key_T, mapped_T>* delNode(treeNode<key_T, mapped_T> *, const key_T &);
+//	treeNode<key_T, mapped_T>* delNode(treeNode<key_T, mapped_T> *, const key_T &);
 	void deleteNode(treeNode<key_T, mapped_T> *);
 	~Map();
 
@@ -478,16 +478,17 @@ void Map<key_T, mapped_T>::erase(const key_T& delKeyNode){
 	treeNode<key_T, mapped_T> *current = this->root;
 	while(current){
 		if(current->data->first == delKeyNode){
-/*			if(!current->left && !current->right && !current->parent){
+			if(!current->left && !current->right && !current->parent){
 				this->root = NULL;
 				delete current->data;
 				delete current;
 				this->count--;
-			}else{*/
-				 this->root = delNode(this->root, delKeyNode);
+			}else{
+				delNode(current);
 				indexing(this->root, 0);
 				this->count--;
 			return;
+			}
 		}
 		else if(current->data->first < delKeyNode)
 			current = current->right;
@@ -500,7 +501,7 @@ template<typename key_T, typename mapped_T>
 void Map<key_T, mapped_T>::erase(Iterator pos){
 	if(pos.node)
 		this->erase(pos->first);
-}
+}/*
 template<typename key_T, typename mapped_T>
 treeNode<key_T, mapped_T>* Map<key_T, mapped_T>::delNode(treeNode<key_T, mapped_T> *rootN, const key_T &key){
 	if(rootN == NULL)
@@ -527,7 +528,7 @@ treeNode<key_T, mapped_T>* Map<key_T, mapped_T>::delNode(treeNode<key_T, mapped_
 		rootN->right = delNode(rootN->right, temp->data->first);
 	}
 	return rootN;
-}/*
+}*/
 template<typename key_T, typename mapped_T>
 void delNode(treeNode<key_T, mapped_T> *node){
 	if(!node->left && !node->right){
@@ -608,7 +609,7 @@ void delNode(treeNode<key_T, mapped_T> *node){
 		node->data = current->data;
 		delete current;
 	}//two childs
-}*/
+}
 template<class key_T, class mapped_T>
 void Map<key_T, mapped_T>::deleteNode(treeNode<key_T, mapped_T> *node){
 	if(node != NULL){

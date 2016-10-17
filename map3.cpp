@@ -140,7 +140,7 @@ int main () {
 
     access_by_key();
 */
-    stress(10000);
+    stress(100);
 	std::cout<<"end"<<std::endl;
     return 0;
 }

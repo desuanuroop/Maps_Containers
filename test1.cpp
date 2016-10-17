@@ -538,7 +538,7 @@ int
 main(int argc, char *argv[]) {
 
     bool correct_output = false;
-    int iterations = 100;
+    int iterations = 80;
 
     {
         int c;
