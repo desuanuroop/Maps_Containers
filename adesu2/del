@@ -1,0 +1,33 @@
+tempalte<key_T, mapped_T>
+treeNode<key_T, mapped_T>* FindMin(treeNode<key_T, mapped_T>* root){
+  while(root->left != NULL) root = root->left;
+  return root;
+}
+
+tempalte<typename key_T, typename mapped_T>
+treeNode<key_T, mapped_T>* Delete(treeNode<key_T, mapped_T>*root, key_T data){
+  if(root == NULL) return root;
+  else if(root->data->first < data) root->right = Delete(root->right,data);
+  else if(data < root->data) root->left = Delete(root->left, data);
+  else {
+    // Case 1: No Child
+    if(root->left == NULL && root->right == NULL){
+      delete root;
+      root = NULL;
+    // Case 2: one child
+    } else if(root->left == NULL){
+      struct Node *temp = root;
+      root = root->right;
+      delete temp;
+    } else if(root->right == NULL){
+      struct Node *temp = root;
+      root = root->left;
+      delete temp;
+    } else{
+      struct Node *temp = FindMin(root->right);
+      root->data = temp->data;
+      root->right = Delete(root->right, temp->data);
+    }
+  }
+  return root;
+}

@@ -1,0 +1,5 @@
+1. Passes test1, test2, minimal, morse test cases with out any leaks/errors.
+2. In test1, output matches with output of std::Map.y
+3. In test1, if number of iterations are greater than 85, will abort.
+4. In performance test, it for all cases but takes long amount of time as size increases.
+
